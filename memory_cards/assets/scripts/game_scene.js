@@ -11,7 +11,7 @@ class GameScene extends Phaser.Scene {
   }
 
   drawCards() {
-    const positions = this.getCardPositions();
+    const positions = this.getCardsPositions();
     for (const position of positions) {
       this.add.image(position.x, position.y, 'card').setOrigin(0, 0);
     }
@@ -25,7 +25,7 @@ class GameScene extends Phaser.Scene {
     return this.sys.game.config.height;
   }
 
-  getCardPositions() {
+  getCardsPositions() {
     const PADDING = 4;
     const cardTexture = this.textures.get('card').getSourceImage();
     const CARD_WITH = cardTexture.width + PADDING;

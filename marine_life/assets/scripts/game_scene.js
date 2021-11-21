@@ -31,7 +31,9 @@ class GameScene extends Phaser.Scene {
 
     for(let value of config.cards) {
       for(let i = 0; i < 2; ++i) {
-        this.cards.push(new Card(this, value, positions.pop()));
+        const randomIndex = Math.floor(Math.random() * positions.length);
+        this.cards.push(new Card(this, value, positions[randomIndex]));
+        positions.splice(randomIndex, 1);
       }
     }
   }

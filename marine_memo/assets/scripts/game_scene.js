@@ -41,7 +41,22 @@ class GameScene extends Phaser.Scene {
   }
 
   onCardClicked(_pointer, card) {
-    card.open();
+    if (card.opened) {
+      return;
+    }
+
+    if (this.prevOpenedCard) {
+      if (this.prevOpenedCard.id != card.id) {
+        this.prevOpenedCard.close();
+        this.prevOpenedCard = card;
+      } else {
+        this.prevOpenedCard = null;
+      }
+    } else {
+      this.prevOpenedCard = card;
+    }
+
+    card.open();    
   }
 
   width() {

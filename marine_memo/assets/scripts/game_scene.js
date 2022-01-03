@@ -36,6 +36,12 @@ class GameScene extends Phaser.Scene {
         positions.splice(randomIndex, 1);
       }
     }
+
+    this.input.on('gameobjectdown', this.onCardClicked, this);
+  }
+
+  onCardClicked(_pointer, card) {
+    card.open();
   }
 
   width() {

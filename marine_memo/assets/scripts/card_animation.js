@@ -2,14 +2,16 @@ class CardAnimation {
   constructor(scene, card) {
     this.scene = scene;
     this.card = card;
+    this.duration = 150;
+    this.function = 'Linear';
   }
 
   foldCard(onComplete) {
     this.scene.tweens.add({
       targets: this.card,
       scaleX: 0,
-      ease: 'Linear',
-      duration: 300,
+      ease: this.function,
+      duration: this.duration,
       onComplete: onComplete
     });
   }
@@ -18,8 +20,8 @@ class CardAnimation {
     this.scene.tweens.add({
       targets: this.card,
       scaleX: 1,
-      ease: 'Linear',
-      duration: 300
+      ease: this.function,
+      duration: this.duration
     });
   }
 }

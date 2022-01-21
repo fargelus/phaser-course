@@ -26,18 +26,21 @@ class GameScene extends Phaser.Scene {
   }
 
   createCards() {
+    this.placeCardsOnScreen();
+    this.input.on('gameobjectdown', this.onCardClicked, this);
+  }
+
+  placeCardsOnScreen() {
     this.cards = [];
     const positions = this.getCardsPositions();
 
     for(let value of config.cards) {
-      for(let i = 0; i < 2; ++i) {
+      for(let i = 0; i < config.rows; ++i) {
         const randomIndex = Math.floor(Math.random() * positions.length);
         this.cards.push(new Card(this, value, positions[randomIndex]));
         positions.splice(randomIndex, 1);
       }
     }
-
-    this.input.on('gameobjectdown', this.onCardClicked, this);
   }
 
   onCardClicked(_pointer, card) {
@@ -56,7 +59,15 @@ class GameScene extends Phaser.Scene {
       this.prevOpenedCard = card;
     }
 
-    card.open();    
+    card.open();
+    this.checkGameOver();
+  }
+
+  checkGameOver() {
+    const allCardsOpened = this.cards.every(card => card.opened);
+    if (!allCardsOpened) return;
+
+    setTimeout(this.placeCardsOnScreen.bind(this), 750);
   }
 
   width() {

@@ -104,9 +104,19 @@ class GameScene extends Phaser.Scene {
   createTimer() {
     const timerX = 10;
     const timerY = 330;
-    this.add.text(timerX, timerY, 'Timer: 30', {
+
+    const timerText = this.add.text(timerX, timerY, `Timer: ${config.timerSeconds}`, {
       font: '36px CurseCasual',
       fill: '#fff'
+    });
+
+    const timer = this.time.addEvent({
+      delay: 1000,
+      startAt: config.timerSeconds,
+      repeat: config.timerSeconds - 1,
+      callback: () => {
+        timerText.setText(`Timer: ${timer.repeatCount}`);
+      }
     });
   }
 }

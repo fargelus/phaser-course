@@ -11,9 +11,21 @@
         canvas {
             width: 100%;
         }
+
+        @font-face {
+          font-family: 'CurseCasual';
+          src: url('assets/fonts/CurseCasual.ttf');
+        }
+
+        .font-preloader {
+          font-family: 'CurseCasual';
+          text-indent: -9999px;
+          position: absolute;
+        }
     </style>
 </head>
 <body>
+    <div class="font-preloader">.</div>
     <script src="assets/scripts/phaser.js"></script>
     <script src="assets/scripts/card_animation.js"></script>
     <script src="assets/scripts/card.js"></script>

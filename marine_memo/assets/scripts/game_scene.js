@@ -19,6 +19,7 @@ class GameScene extends Phaser.Scene {
   create() {
     this.createBackgroud();
     this.createCards();
+    this.createTimer();
   }
 
   createBackgroud() {
@@ -41,6 +42,36 @@ class GameScene extends Phaser.Scene {
         positions.splice(randomIndex, 1);
       }
     }
+  }
+
+  getCardsPositions() {
+    const PADDING = 4;
+    const cardTexture = this.textures.get(config.baseCardKey).getSourceImage();
+    const CARD_WITH = cardTexture.width + PADDING;
+    const CARD_HEIGHT = cardTexture.height + PADDING;
+    const TIMER_OFFSET_X = 20;
+    const OFFSET_X = (this.width() - config.cols * CARD_WITH) / 2 + CARD_WITH / 2 + TIMER_OFFSET_X;
+    const OFFSET_Y = (this.height() - config.rows * CARD_HEIGHT) / 2 + CARD_HEIGHT / 2;
+
+    const positions = [];
+    for(let row = 0; row < config.rows; ++row) {
+      for(let col = 0; col < config.cols; ++col) {
+        positions.push({
+          x: CARD_WITH * col + OFFSET_X,
+          y: CARD_HEIGHT * row + OFFSET_Y
+        });
+      }
+    }
+
+    return positions;
+  }
+
+  width() {
+    return this.sys.game.config.width;
+  }
+
+  height() {
+    return this.sys.game.config.height;
   }
 
   onCardClicked(_pointer, card) {
@@ -70,32 +101,12 @@ class GameScene extends Phaser.Scene {
     setTimeout(this.placeCardsOnScreen.bind(this), 750);
   }
 
-  width() {
-    return this.sys.game.config.width;
-  }
-
-  height() {
-    return this.sys.game.config.height;
-  }
-
-  getCardsPositions() {
-    const PADDING = 4;
-    const cardTexture = this.textures.get(config.baseCardKey).getSourceImage();
-    const CARD_WITH = cardTexture.width + PADDING;
-    const CARD_HEIGHT = cardTexture.height + PADDING;
-    const OFFSET_X = (this.width() - config.cols * CARD_WITH) / 2 + CARD_WITH / 2;
-    const OFFSET_Y = (this.height() - config.rows * CARD_HEIGHT) / 2 + CARD_HEIGHT / 2;
-
-    const positions = [];
-    for(let row = 0; row < config.rows; ++row) {
-      for(let col = 0; col < config.cols; ++col) {
-        positions.push({
-          x: CARD_WITH * col + OFFSET_X,
-          y: CARD_HEIGHT * row + OFFSET_Y
-        });
-      }
-    }
-
-    return positions;
+  createTimer() {
+    const timerX = 10;
+    const timerY = 330;
+    this.add.text(timerX, timerY, 'Timer: 30', {
+      font: '36px CurseCasual',
+      fill: '#fff'
+    });
   }
 }

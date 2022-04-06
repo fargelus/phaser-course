@@ -98,25 +98,32 @@ class GameScene extends Phaser.Scene {
     const allCardsOpened = this.cards.every(card => card.opened);
     if (!allCardsOpened) return;
 
-    setTimeout(this.placeCardsOnScreen.bind(this), 750);
+    setTimeout(this.create.bind(this), 750);
   }
 
   createTimer() {
     const timerX = 10;
     const timerY = 330;
 
-    const timerText = this.add.text(timerX, timerY, `Timer: ${config.timerSeconds}`, {
+    this.timerText = this.add.text(timerX, timerY, `Timer: ${config.timerSeconds}`, {
       font: '36px CurseCasual',
       fill: '#fff'
     });
 
-    const timer = this.time.addEvent({
+    this.timer = this.time.addEvent({
       delay: 1000,
-      startAt: config.timerSeconds,
-      repeat: config.timerSeconds - 1,
-      callback: () => {
-        timerText.setText(`Timer: ${timer.repeatCount}`);
-      }
+      repeat: config.timerSeconds,
+      callback: this.onTimerTick.bind(this)
     });
+  }
+
+  onTimerTick() {
+    const timeLeft = this.timer.repeatCount - 1;
+
+    if (timeLeft < 0) {
+      return this.create();
+    }
+
+    this.timerText.setText(`Timer: ${timeLeft}`);
   }
 }

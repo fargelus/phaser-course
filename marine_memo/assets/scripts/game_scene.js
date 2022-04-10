@@ -2,6 +2,7 @@ class GameScene extends Phaser.Scene {
   preload() {
     this.preloadBackground();
     this.preloadCards();
+    this.preloadAudio();
   }
 
   preloadBackground() {
@@ -16,7 +17,16 @@ class GameScene extends Phaser.Scene {
     }
   }
 
+  preloadAudio() {
+    this.load.audio('card', `${config.soundsPath}/card.mp3`);
+    this.load.audio('complete', `${config.soundsPath}/complete.mp3`);
+    this.load.audio('success', `${config.soundsPath}/success.mp3`);
+    this.load.audio('theme', `${config.soundsPath}/theme.mp3`);
+    this.load.audio('timeout', `${config.soundsPath}/timeout.mp3`);
+  }
+
   create() {
+    this.createSounds();
     this.createBackgroud();
     this.createCards();
     this.createTimer();
@@ -29,6 +39,19 @@ class GameScene extends Phaser.Scene {
   createCards() {
     this.placeCardsOnScreen();
     this.input.on('gameobjectdown', this.onCardClicked, this);
+  }
+
+  createSounds() {
+    this.sounds = {
+      'card': this.sound.add('card'),
+      'complete': this.sound.add('complete'),
+      'success': this.sound.add('success'),
+      'theme': this.sound.add('theme'),
+      'timeout': this.sound.add('timeout')
+    }
+    this.sounds.theme.play({
+      volume: 0.1
+    });
   }
 
   placeCardsOnScreen() {
@@ -84,6 +107,7 @@ class GameScene extends Phaser.Scene {
         this.prevOpenedCard.close();
         this.prevOpenedCard = card;
       } else {
+        this.sounds.success.play();
         this.prevOpenedCard = null;
       }
     } else {
@@ -91,6 +115,7 @@ class GameScene extends Phaser.Scene {
     }
 
     card.open();
+    this.sounds.card.play();
     this.checkGameOver();
   }
 
@@ -98,7 +123,13 @@ class GameScene extends Phaser.Scene {
     const allCardsOpened = this.cards.every(card => card.opened);
     if (!allCardsOpened) return;
 
-    setTimeout(this.create.bind(this), 750);
+    this.sounds.complete.play();
+    this.restartGame();
+  }
+
+  restartGame() {
+    this.sounds.theme.stop();
+    setTimeout(this.create.bind(this), config.restartDelayMsec);
   }
 
   createTimer() {
@@ -121,7 +152,8 @@ class GameScene extends Phaser.Scene {
     const timeLeft = this.timer.repeatCount - 1;
 
     if (timeLeft < 0) {
-      return this.create();
+      this.sounds.timeout.play();
+      return this.restartGame();
     }
 
     this.timerText.setText(`Timer: ${timeLeft}`);

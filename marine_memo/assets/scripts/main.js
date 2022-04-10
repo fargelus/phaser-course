@@ -5,9 +5,11 @@ const config = {
     rows: 2,
     cols: 5,
     timerSeconds: 30,
+    restartDelayMsec: 1500,
     baseCardKey: 'card',
     cards: [1, 2, 3, 4, 5],
     imagePath: 'assets/sprites',
+    soundsPath: 'assets/sounds',
     scene: new GameScene()
 };
 

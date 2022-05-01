@@ -37,6 +37,7 @@ class GameScene extends Phaser.Scene {
   }
 
   createCards() {
+    this.initCards();
     this.placeCardsOnScreen();
     this.input.on('gameobjectdown', this.onCardClicked, this);
   }
@@ -54,24 +55,34 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  placeCardsOnScreen() {
+  initCards() {
     this.cards = [];
-    const positions = this.getCardsPositions();
 
     for(let value of config.cards) {
       for(let i = 0; i < config.rows; ++i) {
-        const randomIndex = Math.floor(Math.random() * positions.length);
-        this.cards.push(new Card(this, value, positions[randomIndex]));
-        positions.splice(randomIndex, 1);
+        const initPosition = { x: -this.cardTexture().width, y: -this.cardTexture().height };
+        this.cards.push(new Card(this, value, initPosition));
       }
     }
   }
 
+  placeCardsOnScreen() {
+    const positions = this.getCardsPositions();
+    for(let i = 0; i < this.cards.length; ++i) {
+      const position = positions[i];
+      const moveParams = {x: position.x, y: position.y, delay: i * 100};
+      this.cards[i].move(moveParams);
+    }
+  }
+
+  cardTexture() {
+    return this.textures.get(config.baseCardKey).getSourceImage();
+  }
+
   getCardsPositions() {
     const PADDING = 4;
-    const cardTexture = this.textures.get(config.baseCardKey).getSourceImage();
-    const CARD_WITH = cardTexture.width + PADDING;
-    const CARD_HEIGHT = cardTexture.height + PADDING;
+    const CARD_WITH = this.cardTexture().width + PADDING;
+    const CARD_HEIGHT = this.cardTexture().height + PADDING;
     const TIMER_OFFSET_X = 20;
     const OFFSET_X = (this.width() - config.cols * CARD_WITH) / 2 + CARD_WITH / 2 + TIMER_OFFSET_X;
     const OFFSET_Y = (this.height() - config.rows * CARD_HEIGHT) / 2 + CARD_HEIGHT / 2;

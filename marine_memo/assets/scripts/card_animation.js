@@ -6,7 +6,7 @@ class CardAnimation {
     this.function = 'Linear';
   }
 
-  foldCard(onComplete) {
+  fold(onComplete) {
     this.scene.tweens.add({
       targets: this.card,
       scaleX: 0,
@@ -16,12 +16,23 @@ class CardAnimation {
     });
   }
 
-  expandCard() {
+  expand() {
     this.scene.tweens.add({
       targets: this.card,
       scaleX: 1,
       ease: this.function,
       duration: this.duration
+    });
+  }
+
+  move(params) {
+    this.scene.tweens.add({
+      targets: this.card,
+      x: params.x,
+      y: params.y,
+      delay: params.delay,
+      ease: this.function,
+      duration: this.duration * 4
     });
   }
 }

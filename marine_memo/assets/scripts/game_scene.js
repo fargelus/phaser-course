@@ -49,7 +49,7 @@ class GameScene extends Phaser.Scene {
       'success': this.sound.add('success'),
       'theme': this.sound.add('theme'),
       'timeout': this.sound.add('timeout')
-    }
+    };
     this.sounds.theme.play({
       volume: 0.1
     });
@@ -60,10 +60,18 @@ class GameScene extends Phaser.Scene {
 
     for(let value of config.cards) {
       for(let i = 0; i < config.rows; ++i) {
-        const initPosition = { x: -this.cardTexture().width, y: -this.cardTexture().height };
+        const initPosition = { x: -this.cardWidth(), y: -this.cardHeight() };
         this.cards.push(new Card(this, value, initPosition));
       }
     }
+  }
+
+  cardWidth() {
+    return this.cardTexture().width;
+  }
+
+  cardHeight() {
+    return this.cardTexture().height;
   }
 
   placeCardsOnScreen() {
@@ -81,8 +89,8 @@ class GameScene extends Phaser.Scene {
 
   getCardsPositions() {
     const PADDING = 4;
-    const CARD_WITH = this.cardTexture().width + PADDING;
-    const CARD_HEIGHT = this.cardTexture().height + PADDING;
+    const CARD_WITH = this.cardWidth() + PADDING;
+    const CARD_HEIGHT = this.cardHeight() + PADDING;
     const TIMER_OFFSET_X = 20;
     const OFFSET_X = (this.width() - config.cols * CARD_WITH) / 2 + CARD_WITH / 2 + TIMER_OFFSET_X;
     const OFFSET_Y = (this.height() - config.rows * CARD_HEIGHT) / 2 + CARD_HEIGHT / 2;
@@ -113,6 +121,10 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
+    if (this.timer.paused) {
+      this.timer.paused = false;
+    }
+
     if (this.prevOpenedCard) {
       if (this.prevOpenedCard.id != card.id) {
         this.prevOpenedCard.close();
@@ -140,7 +152,18 @@ class GameScene extends Phaser.Scene {
 
   restartGame() {
     this.sounds.theme.stop();
+    this.hideCards();
+    this.timer.paused = true;
     setTimeout(this.create.bind(this), config.restartDelayMsec);
+  }
+
+  hideCards() {
+    const hidePositionX = this.width() + this.cardWidth();
+    for(let i = this.cards.length - 1; i >= 0; --i) {
+      const delay = (this.cards.length - i) * 100;
+      const moveParams = {x: hidePositionX, y: 0, delay: delay};
+      this.cards[i].move(moveParams);
+    }
   }
 
   createTimer() {
@@ -157,6 +180,7 @@ class GameScene extends Phaser.Scene {
       repeat: config.timerSeconds,
       callback: this.onTimerTick.bind(this)
     });
+    this.timer.paused = true;
   }
 
   onTimerTick() {

@@ -34,20 +34,16 @@ class GameScene extends Phaser.Scene {
     this.createCards();
   }
 
-  createLevelLabel() {
-    const labelX = config.timer.x;
-    const labelY = config.timer.y - this.timerText.displayHeight;
-    this.add.text(labelX, labelY, `Level: ${this.currentLevel}`, config.labelsFont);
-  }
-
   createBackgroud() {
     this.add.image(this.width() / 2, this.height() / 2, 'bg');
   }
 
-  createCards() {
-    this.initCards();
-    this.placeCardsOnScreen();
-    this.input.on('gameobjectdown', this.onCardClicked, this);
+  width() {
+    return this.sys.game.config.width;
+  }
+
+  height() {
+    return this.sys.game.config.height;
   }
 
   createSounds() {
@@ -61,6 +57,73 @@ class GameScene extends Phaser.Scene {
     this.sounds.theme.play({
       volume: 0.1
     });
+  }
+
+  createTimer() {
+    this.timerText = this.add.text(
+      config.timer.x,
+      config.timer.y,
+      `Timer: ${this.timerSeconds()}`,
+      config.labelsFont
+    );
+
+    this.timer = this.time.addEvent({
+      delay: 1000,
+      repeat: this.timerSeconds(),
+      callback: this.onTimerTick.bind(this)
+    });
+    this.timer.paused = true;
+  }
+
+  timerSeconds() {
+    return config.levels[this.currentLevel].timerSeconds;
+  }
+
+  onTimerTick() {
+    const timeLeft = this.timer.repeatCount - 1;
+
+    if (timeLeft < 0) {
+      this.sounds.timeout.play();
+      return this.restartGame();
+    }
+
+    this.timerText.setText(`Timer: ${timeLeft}`);
+  }
+
+  restartGame() {
+    this.sounds.theme.stop();
+    this.hideCards();
+    this.timer.paused = true;
+    setTimeout(this.create.bind(this), config.restartDelayMsec);
+  }
+
+  hideCards() {
+    const hidePositionX = this.width() + this.cardWidth();
+    for(let i = this.cards.length - 1; i >= 0; --i) {
+      const delay = (this.cards.length - i) * 100;
+      const moveParams = {x: hidePositionX, y: 0, delay: delay};
+      this.cards[i].move(moveParams);
+    }
+  }
+
+  cardWidth() {
+    return this.cardTexture().width;
+  }
+
+  cardTexture() {
+    return this.textures.get(config.baseCardKey).getSourceImage();
+  }
+
+  createLevelLabel() {
+    const labelX = config.timer.x;
+    const labelY = config.timer.y - this.timerText.displayHeight;
+    this.add.text(labelX, labelY, `Level: ${this.currentLevel}`, config.labelsFont);
+  }
+
+  createCards() {
+    this.initCards();
+    this.placeCardsOnScreen();
+    this.input.on('gameobjectdown', this.onCardClicked, this);
   }
 
   initCards() {
@@ -85,14 +148,6 @@ class GameScene extends Phaser.Scene {
     return config.levels[this.currentLevel].cols;
   }
 
-  timerSeconds() {
-    return config.levels[this.currentLevel].timerSeconds;
-  }
-
-  cardWidth() {
-    return this.cardTexture().width;
-  }
-
   cardHeight() {
     return this.cardTexture().height;
   }
@@ -104,10 +159,6 @@ class GameScene extends Phaser.Scene {
       const moveParams = {x: position.x, y: position.y, delay: i * 100};
       this.cards[i].move(moveParams);
     }
-  }
-
-  cardTexture() {
-    return this.textures.get(config.baseCardKey).getSourceImage();
   }
 
   getCardsPositions() {
@@ -129,14 +180,6 @@ class GameScene extends Phaser.Scene {
     }
 
     return positions;
-  }
-
-  width() {
-    return this.sys.game.config.width;
-  }
-
-  height() {
-    return this.sys.game.config.height;
   }
 
   onCardClicked(_pointer, card) {
@@ -174,48 +217,5 @@ class GameScene extends Phaser.Scene {
     }
     this.sounds.complete.play();
     this.restartGame();
-  }
-
-  restartGame() {
-    this.sounds.theme.stop();
-    this.hideCards();
-    this.timer.paused = true;
-    setTimeout(this.create.bind(this), config.restartDelayMsec);
-  }
-
-  hideCards() {
-    const hidePositionX = this.width() + this.cardWidth();
-    for(let i = this.cards.length - 1; i >= 0; --i) {
-      const delay = (this.cards.length - i) * 100;
-      const moveParams = {x: hidePositionX, y: 0, delay: delay};
-      this.cards[i].move(moveParams);
-    }
-  }
-
-  createTimer() {
-    this.timerText = this.add.text(
-      config.timer.x,
-      config.timer.y,
-      `Timer: ${this.timerSeconds()}`,
-      config.labelsFont
-    );
-
-    this.timer = this.time.addEvent({
-      delay: 1000,
-      repeat: this.timerSeconds(),
-      callback: this.onTimerTick.bind(this)
-    });
-    this.timer.paused = true;
-  }
-
-  onTimerTick() {
-    const timeLeft = this.timer.repeatCount - 1;
-
-    if (timeLeft < 0) {
-      this.sounds.timeout.play();
-      return this.restartGame();
-    }
-
-    this.timerText.setText(`Timer: ${timeLeft}`);
   }
 }

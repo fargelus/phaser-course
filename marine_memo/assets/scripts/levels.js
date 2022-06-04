@@ -34,4 +34,4 @@ const levels = {
     cols: 5,
     timerSeconds: 15
   }
-}
+};

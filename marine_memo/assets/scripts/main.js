@@ -1,10 +1,8 @@
 const config = {
-    type: Phaser.AUTO, // webgl or canvas
+    type: Phaser.CANVAS, // webgl or canvas
     width: 1280,
     height: 720,
     levels: levels,
-    rows: 2,
-    cols: 5,
     timer: {
       x: 10,
       y: 330

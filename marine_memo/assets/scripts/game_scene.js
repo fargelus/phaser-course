@@ -26,10 +26,18 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.createSounds();
+    this.currentLevel ||= 1;
     this.createBackgroud();
-    this.createCards();
+    this.createSounds();
     this.createTimer();
+    this.createLevelLabel();
+    this.createCards();
+  }
+
+  createLevelLabel() {
+    const labelX = config.timer.x;
+    const labelY = config.timer.y - this.timerText.displayHeight;
+    this.add.text(labelX, labelY, `Level: ${this.currentLevel}`, config.labelsFont);
   }
 
   createBackgroud() {
@@ -57,13 +65,28 @@ class GameScene extends Phaser.Scene {
 
   initCards() {
     this.cards = [];
+    this.cardsValues = [...config.cards];
+    Phaser.Utils.Array.Shuffle(this.cardsValues);
 
-    for(let value of config.cards) {
-      for(let i = 0; i < config.rows; ++i) {
-        const initPosition = { x: -this.cardWidth(), y: -this.cardHeight() };
-        this.cards.push(new Card(this, value, initPosition));
-      }
+    const totalCards = this.cardRows() * this.cardCols();
+    for(let i = 0; i < totalCards; ++i) {
+      const initPosition = { x: -this.cardWidth(), y: -this.cardHeight() };
+      const index = Math.floor(i / 2);
+      const value = this.cardsValues[index];
+      this.cards.push(new Card(this, value, initPosition));
     }
+  }
+
+  cardRows() {
+    return config.levels[this.currentLevel].rows;
+  }
+
+  cardCols() {
+    return config.levels[this.currentLevel].cols;
+  }
+
+  timerSeconds() {
+    return config.levels[this.currentLevel].timerSeconds;
   }
 
   cardWidth() {
@@ -92,12 +115,12 @@ class GameScene extends Phaser.Scene {
     const CARD_WITH = this.cardWidth() + PADDING;
     const CARD_HEIGHT = this.cardHeight() + PADDING;
     const TIMER_OFFSET_X = 20;
-    const OFFSET_X = (this.width() - config.cols * CARD_WITH) / 2 + CARD_WITH / 2 + TIMER_OFFSET_X;
-    const OFFSET_Y = (this.height() - config.rows * CARD_HEIGHT) / 2 + CARD_HEIGHT / 2;
+    const OFFSET_X = (this.width() - this.cardCols() * CARD_WITH) / 2 + CARD_WITH / 2 + TIMER_OFFSET_X;
+    const OFFSET_Y = (this.height() - this.cardRows() * CARD_HEIGHT) / 2 + CARD_HEIGHT / 2;
 
     const positions = [];
-    for(let row = 0; row < config.rows; ++row) {
-      for(let col = 0; col < config.cols; ++col) {
+    for(let row = 0; row < this.cardRows(); ++row) {
+      for(let col = 0; col < this.cardCols(); ++col) {
         positions.push({
           x: CARD_WITH * col + OFFSET_X,
           y: CARD_HEIGHT * row + OFFSET_Y
@@ -146,6 +169,9 @@ class GameScene extends Phaser.Scene {
     const allCardsOpened = this.cards.every(card => card.opened);
     if (!allCardsOpened) return;
 
+    if (config.levels[this.currentLevel + 1]) {
+      ++this.currentLevel;
+    }
     this.sounds.complete.play();
     this.restartGame();
   }
@@ -167,17 +193,16 @@ class GameScene extends Phaser.Scene {
   }
 
   createTimer() {
-    const timerX = 10;
-    const timerY = 330;
-
-    this.timerText = this.add.text(timerX, timerY, `Timer: ${config.timerSeconds}`, {
-      font: '36px CurseCasual',
-      fill: '#fff'
-    });
+    this.timerText = this.add.text(
+      config.timer.x,
+      config.timer.y,
+      `Timer: ${this.timerSeconds()}`,
+      config.labelsFont
+    );
 
     this.timer = this.time.addEvent({
       delay: 1000,
-      repeat: config.timerSeconds,
+      repeat: this.timerSeconds(),
       callback: this.onTimerTick.bind(this)
     });
     this.timer.paused = true;

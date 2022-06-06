@@ -26,8 +26,12 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.currentLevel ||= 1;
     this.createBackgroud();
+
+    this.currentLevel ||= 1;
+    this.score ||= new Score(this);
+    this.score.render();
+
     this.createSounds();
     this.createTimer();
     this.createLevelLabel();
@@ -195,8 +199,10 @@ class GameScene extends Phaser.Scene {
       if (this.prevOpenedCard.id != card.id) {
         this.prevOpenedCard.close();
         this.prevOpenedCard = card;
+        this.score.reset();
       } else {
         this.sounds.success.play();
+        this.score.up();
         this.prevOpenedCard = null;
       }
     } else {
@@ -205,6 +211,7 @@ class GameScene extends Phaser.Scene {
 
     card.open();
     this.sounds.card.play();
+    this.score.update();
     this.checkGameOver();
   }
 
